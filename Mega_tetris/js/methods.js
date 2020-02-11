@@ -1,49 +1,10 @@
 'use strict'
-// var _get_game_fields = () => {
-//     return $("#game_window .col").get();
-// }
 
+const FIELD_WIDTH = 10;
+const FIELD_HEIGHT = 20;
 
-// // for (var i = 0; i < game_fields.length; ++i) {
-//     //     $(game_fields[i]).addClass("active");
-//     // }
+class Field {
 
-
-// const game_fields = _get_game_fields();
-// console.log(game_fields);
-// const field = new Array(game_fields.length);
-
-// var show = (show_list) => { 
-//     game_fields.forEach((element, index) => {
-//         if (show_list[index] == 1)
-//             $(element).addClass("active");
-//     });
-// }
-
-// var clean = () => {
-//     game_fields.forEach((element) => {
-//         if ($(element).hasClass("active")) {
-//             $(element).removeClass("active");
-//         }
-//     });
-// }
-
-// var set_col = (i, j, value=1) => {
-//     var len_str = 10;
-//     field[(i*len_str)+j] = !!value
-// }
-
-// var init_field = () => {
-//     clean();
-//     for (var i = 0; i < field.length; ++i) {
-//         field[i] = 0;
-//     }
-// }
-
-class Fileld {
-
-    width = 10;
-    height = 20;
 
     constructor() {
         this.game_fields = $("#game_window .col").get();
@@ -54,7 +15,7 @@ class Fileld {
     }
 
     init () {
-        this clean()
+        this.clean()
         for (var i = 0; i < field.length; ++i) {
             this.field[i] = false;
         }
@@ -70,16 +31,38 @@ class Fileld {
 
     show() {
         this.game_fields.forEach((element, index) => {
-            if (show_list[index]) {
+            if (this.field[index]) {
                 $(element).addClass("active");
             }
         });
     }
 
-    set_cell (i, j, value=false) {
-        this.field[(i * width) + j] = !!value
+    set_cell (i, j, value=true) {
+        this.field[(i * FIELD_WIDTH) + j] = !!value
     }
 }
+
+const figures = {
+    line: [true, true, true, true, false, false, false, false],
+    angle_right: [true, true, true, false, false, false, true, false],
+    angle_left: [true, true, true, false, true, false, false, false],
+    step_right: [true, true, false, false, false, true, true, false],
+    step_left: [false, true, true, false, true, true, false, false],
+    square: [true, true, false, false, true, true, false, false]
+}
+
+const turns = [0, 90, 180, 270]
+
+class Figure {
+    constructor(size) {
+        this.mask = new Array()
+        for (var i=0; i<size; ++i) {
+            this.mask[i] = false;
+        }
+        this.figure = figures[Math.floor(Math.random() * figures.length)]
+    }
+}
+
 
 
 
