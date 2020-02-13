@@ -3,6 +3,15 @@
 var field = new Field();
 
 field.init();
+
+
+var figure = new Figure(200);
+figure.show()
+
+var mask = new Mask(10, 20);
+
+
+
 // var line = 0;
 // var col = 0;
 // var speed = 500;
