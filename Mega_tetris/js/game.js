@@ -1,14 +1,91 @@
 'use strict'
 
 var field = new Field();
-
 field.init();
-
-
 var figure = new Figure(200);
 figure.show()
+var mask = new Mask(FIELD_WIDTH, FIELD_HEIGHT);
+mask.set_figure(figure);
+mask.merge();
+apply(mask, field)
+// field.show();
 
-var mask = new Mask(10, 20);
+$("body").keypress((event) => {
+    // console.log(event.code)
+    // if(event.code == "KeyA") {
+    //     console.log("LEFT");
+    // }
+    // if (event.code == "KeyD") {
+    //     console.log("RIGHT")
+    // }
+    switch(event.code) {
+        case "KeyA": {
+            console.log("LEFT");
+            field.clean();
+            mask.clean();
+            mask.move_left();
+            mask.merge();
+            apply(mask, field);
+            field.show();
+            break;
+        }
+        case "KeyD": {
+            console.log("RIGHT");
+            field.clean();
+            mask.clean();
+            mask.move_right();
+            mask.merge();
+            apply(mask, field);
+            field.show();
+            break;
+        }
+        case "KeyW": {
+            console.log("TURN");
+            field.clean();
+            mask.clean();
+            mask.turn_figure();
+            mask.merge();
+            apply(mask, field);
+            field.show();
+            break;
+        }
+        default: {
+            console.log(event.cod)
+        }
+    }
+})
+
+var speed = 400;
+var speed_interval = 0;
+
+var loop = () => {
+    figure = new Figure();
+    mask = new Mask(FIELD_WIDTH, FIELD_HEIGHT);
+    mask.set_figure(figure);
+    mask.merge();
+    apply(mask, field)
+    return setInterval(() => {
+        field.clean();
+        mask.clean();
+        if (mask.step()) {
+            mask.merge();
+            apply(mask, field);
+            field.show();
+        }
+        else {
+            clearInterval(speed_interval);
+            speed_interval = 0;
+        }
+    }, speed);
+}
+
+var interval = setInterval(() => {
+    if (!speed_interval) {
+        speed_interval = loop();
+    }
+}, 500);
+
+
 
 
 

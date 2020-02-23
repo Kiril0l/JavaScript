@@ -8,16 +8,20 @@ class Field {
 
     constructor() {
         this.__game_fields = $("#game_window .col").get();
-        this.field = new Array();
+        this.__field = new Array();
         for (var i = 0; i < this.__game_fields.length; ++i) {
-            this.field[i] = false;
+            this.__field[i] = false;
+        }
+        this.__result = new Array();
+        for (var i = 0; i < this.__game_fields.length; ++i) {
+            this.__result[i]= false;
         }
     }
 
     init () {
         this.clean()
-        for (var i = 0; i < this.field.length; ++i) {
-            this.field[i] = false;
+        for (var i = 0; i < this.__field.length; ++i) {
+            this.__field[i] = false;
         }
     }
 
@@ -29,16 +33,23 @@ class Field {
         });
     }
 
+    save_result() {
+        this.__result = this.__field.slice();
+    }
+
     show() {
         this.__game_fields.forEach((element, index) => {
-            if (this.field[index]) {
+            if (this.__field[index]) {
                 $(element).addClass("active");
             }
         });
     }
 
     set_cell (i, j, value=true) {
-        this.field[(i * FIELD_WIDTH) + j] = !!value
+        this.__field[(i * FIELD_WIDTH) + j] = !!value
+    }
+    get_result(i, j) {
+        return this.field
     }
 }
 
@@ -90,9 +101,10 @@ class Mask {
     constructor(width, height) {
         this.__width = width;
         this.__height = height;
-        this.__offset_legt = 0;
+        this.__offset_left = 0;
         this.__offset_top = 0;
         this.__mask = new Array();
+        this.__figure = new Array();
         for (var i=0; i< this.__height; ++i) {
             var line = new Array()
             for (var j=0; j < this.__width; ++j) {
@@ -100,44 +112,90 @@ class Mask {
             }
             this.__mask.push(line);
         }
-        console.log(this.__mask)
+        this.__step = true;
     }
     set_figure(figure) {
         this.__figure = figure;
-        this.__offset_legt = Math.floor(
-            (this.__width - this.__figure[0].length) / 2
+        this.__offset_left = Math.floor(
+            (this.__width - this.__figure.get()[0].length) / 2
         );
     }
     turn_figure() {
         this.__figure.turn();
+        if ((this.__offset_left + this.__figure.get()[0].length) >= FIELD_WIDTH) {
+            this.__offset_left = FIELD_WIDTH - this.__figure.get()[0].length
+        }
+        if ((this.__offset_top + this.__figure.get().length) >= FIELD_HEIGHT) {
+            this.__offset_top = FIELD_HEIGHT - this.__figure.get().length
+        }
     }
-    merge() {
 
+    merge() {
+        var figure_data = this.__figure.get();
+        for (var i = 0; i < figure_data.length; ++i) {
+            for (var j = 0; j < figure_data[0].length; ++j) {
+                this.__mask[i + this.__offset_top][j + this.__offset_left] = figure_data[i][j]
+            }
+        }
     }
-    clean_mask() {
+
+    clean() {
         for (var i = 0; i < this.__height; ++i) {
             for (var j = 0; j < this.__width; ++j) {
                 this.__mask[i][j] = false;
             }
         }
     }
+
     move_right() {
-        if ((this.__offset_left + this.__figure[0].length) < this.__width - 1) {
-            ++this.__offset_legt;
+        if ((this.__offset_left + this.__figure.get()[0].length) < this.__width) {
+            ++this.__offset_left;
         }
-        this.
     }
+
     move_left() {
-        if (this.__offset_legt > 0) {
-            --this.__offset_legt;
+        if (this.__offset_left > 0) {
+            --this.__offset_left;
         }
     }
+
     step() {
-        if ((this.__offset_top + this.__figure.length)<this.__height - 1) {
-            ++this.__offset_top
+        if ((this.__step) || ((this.__offset_top + this.__figure.get().length)<this.__height)) {
+            ++this.__offset_top;
+            return true;
+        }
+        return false;
+    }
+
+    get_mask() {
+        return this.__mask;
+    }
+    stop() {
+        this.__step = false;
+    }
+}
+
+var apply = (mask, field) => {
+    var data = mask.get_mask();
+    for (var i = 0; i < FIELD_HEIGHT; ++i) {
+        for (var j = 0; j < FIELD_WIDTH; ++j) {
+            field.set_cell(i, j, field.get_result(i, j))
+            }
+        }
+    }
+    for (var i = 0; i < FIELD_HEIGHT; ++i) {
+        for (var j = 0; j < FIELD_WIDTH; ++j) {
+            if (!field.get_result(i, j)) {
+                field.set_cell(i, j, data[i][j])
+            }
+            else {
+                mask.stop();
+                console.error("ERROR")
+            }
         }
     }
 }
+
 
 
 
